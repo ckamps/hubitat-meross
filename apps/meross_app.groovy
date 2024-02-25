@@ -2,7 +2,7 @@ import groovy.json.*
 import java.net.URLEncoder
 import java.security.MessageDigest
 
-def appVersion() { return "0.1.0" }
+def appVersion() { return "0.1.1" }
 
 definition(
 	name: "Meross Garage Door Manager",
@@ -61,17 +61,18 @@ def addGarageDoorStep1() {
     
     return dynamicPage(name: "addGarageDoorStep1", title: "Add New Garage Doors (Step 1)", install: false, nextPage: addGarageDoorStep2) {
         section(){
-            input "merossUsername", "string", required: true, title: "Enter your Meross username"
-            input "merossPassword", "password", required: true, title: "Enter your Meross password"
-            input "merossIP", "string", required: true, title: "Enter the IP address of your Meross device"
+            input "merossUsername", "string", required: true, title: "Meross email address"
+            input "merossPassword", "password", required: true, title: "Meross password"
+            input "merossIP", "string", required: true, title: "IP address of your Meross device"
+            input "merossDomain", "string", required: true, title: "Domain for Meross API. iotx-ap.meross.com (Asia/Pacific region), iotx-eu.meross.com (Europe), iotx-us.meross.com (US)", defaultValue: "iotx-us.meross.com"
         }
     }
 }
 
 def addGarageDoorStep2() {
-    def response = loginMeross(merossUsername,merossPassword)
+    def response = loginMeross(merossUsername,merossPassword,merossDomain)
     if(response.code == 200) {
-        state.data = getMerossData(response.token)
+        state.data = getMerossData(response.token,merossDomain)
         state.merossKey = response.key
         def devices = [:]
         state.data.each{ device ->
@@ -195,7 +196,7 @@ def generator(alphabet,n) {
   }
 }
 
-def getMerossData(token) {
+def getMerossData(token, domain) {
     def nonce = generator( (('A'..'Z')+('0'..'9')).join(), 16 )    
     def unix_time = (Integer)Math.floor(new Date().getTime() / 1000);
 
@@ -215,7 +216,7 @@ def getMerossData(token) {
     def json = JsonOutput.toJson(data)
     
     def commandParams = [
-		uri: "https://iot.meross.com/v1/Device/devList",
+		uri: "https://${domain}/v1/Device/devList",
 		contentType: "application/json",
 		requestContentType: 'application/json',
         headers: ['Authorization':'Basic ' + token],
@@ -241,7 +242,7 @@ def getMerossData(token) {
     return respData
 }
 
-def loginMeross(email, password) {
+def loginMeross(email, password, domain) {
     def nonce = generator( (('A'..'Z')+('0'..'9')).join(), 16 )    
     def unix_time = (Integer)Math.floor(new Date().getTime() / 1000);
 
@@ -259,7 +260,7 @@ def loginMeross(email, password) {
     def formBody = "params=${encoded_param}&sign=${sign}&timestamp=${unix_time}&nonce=${nonce}"
       
 	def commandParams = [
-		uri: "https://iot.meross.com/v1/Auth/login",
+		uri: "https://${domain}/v1/Auth/signIn",
 		contentType: 'application/x-www-form-urlencoded',
 		body : formBody
 	]
