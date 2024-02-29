@@ -106,7 +106,7 @@ def refresh() {
     try {
         def payloadData = currentVersion >= 323 ? getSign() : [MessageId: settings.messageId, Sign: settings.sign, CurrentTime: settings.timestamp]
 
-        log.info('Refreshing')
+        log.debug('Refreshing')
         
         def hubAction = new hubitat.device.HubAction([
             method: 'POST',
@@ -117,7 +117,7 @@ def refresh() {
             ],
             body: '{"payload":{},"header":{"messageId":"'+payloadData.get('MessageId')+'","method":"GET","from":"http://'+settings.deviceIp+'/subscribe","sign":"'+ payloadData.get('Sign') +'","namespace": "Appliance.System.All","triggerSrc":"AndroidLocal","timestamp":' + payloadData.get('CurrentTime') + ',"payloadVersion":1}}'
         ])
-        log hubAction
+        log.debug hubAction
         return hubAction
     } catch (Exception e) {
         log.debug "runCmd hit exception ${e} on ${hubAction}"
@@ -125,17 +125,17 @@ def refresh() {
 }
 
 def open() {
-    log.info('Opening Garage')
+    log.debug('Opening Garage')
     return sendCommand(1)
 }
 
 def close() {
-    log.info('Closing Garage')
+    log.debug('Closing Garage')
     return sendCommand(0)
 }
 
 def updated() {
-    log.info('Updated')
+    log.debug('Updated')
     initialize()
 }
 

@@ -2,7 +2,7 @@ import groovy.json.*
 import java.net.URLEncoder
 import java.security.MessageDigest
 
-def appVersion() { return "0.1.1" }
+def appVersion() { return "0.1.0" }
 
 definition(
 	name: "Meross Garage Door Manager",
@@ -99,28 +99,41 @@ def addGarageDoorStep2() {
 }
 
 def addGarageDoorStep3() {
-    def doors = [:]
-    state.data.each { device ->
-        if(device.uuid == selectedDevice) {
-            for(i=1; i<device.channels.size(); i++){
-                def dni = selectedDevice + ":${i}"
-                def isChild = getChildDevice(dni)
-                if(!isChild) {
-                    doors["${i}"] = device.channels[i].devName
-                }
-            }
+  def doors = [:]
+  state.data.each { device ->
+    if(device.uuid == selectedDevice) {
+      if(device.deviceType == "msg200") {
+        for(i=1; i<device.channels.size(); i++){
+          def dni = selectedDevice + ":${i}"
+          def isChild = getChildDevice(dni)
+          if(!isChild) {
+            doors["${i}"] = device.channels[i].devName
+          }
         }
-    }
-    return dynamicPage(name: "addGarageDoorStep3", title: "Add New Garage Doors (Step 3)", install: false, nextPage: addGarageDoorStep4) {
-        section(){
-            input ("selectedDoors", "enum",
-                   required: true,
-                   multiple: true,
-                   title: "Select one or more garage doors to add (${doors.size() ?: 0} new doors detected)",
-                   description: "Use the dropdown to select the door(s).",
-                   options: doors)
+      }
+      else if (device.deviceType == "msg100") {
+        def dni = selectedDevice + '1'
+        def isChild = getChildDevice(dni)
+        if(!isChild) {
+          doors['1'] = device.devName
         }
+      }
+      else {
+        logDebug("Unsupported device type:" + device.deviceType) 
+      }
     }
+      log.info("device: " + device)
+  }
+  return dynamicPage(name: "addGarageDoorStep3", title: "Add New Garage Doors (Step 3)", install: false, nextPage: addGarageDoorStep4) {
+    section() {
+      input ("selectedDoors", "enum",
+              required: true,
+              multiple: true,
+              title: "Select one or more garage doors to add (${doors.size() ?: 0} new doors detected)",
+              description: "Use the dropdown to select the door(s).",
+              options: doors)
+    }
+  }
 }
 
 def addGarageDoorStep4() {
