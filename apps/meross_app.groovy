@@ -5,7 +5,7 @@ import java.security.MessageDigest
 def appVersion() { return "0.1.0" }
 
 definition(
-	name: "Meross Garage Door Manager",
+	name: "Meross Garage Door Manager - Revised",
 	namespace: "ajardolino3",
 	author: "Art Ardolino",
 	description: "Manages the addition and removal of Meross Garage Door Devices",
@@ -99,7 +99,7 @@ def addGarageDoorStep2() {
 }
 
 def addGarageDoorStep3() {
-  def doors = [:]
+  def doors = [:] 
   state.data.each { device ->
     if(device.uuid == selectedDevice) {
       if(device.deviceType == "msg200") {
@@ -139,11 +139,11 @@ def addGarageDoorStep3() {
 def addGarageDoorStep4() {
     
     def doors = [:]
-    state.data.each { device ->
+    state.data.each { device ->    
+    log.info("step4 devices" + device) 
         if(device.uuid == selectedDevice) {
-            for(i=1; i<device.channels.size(); i++){
-                doors["${i}"] = device.channels[i]
-            }
+            log.info("step4 channels" + device.channels)
+              doors['1'] = device.devName
         }
     }
     
@@ -156,9 +156,10 @@ def addGarageDoorStep4() {
         def isChild = getChildDevice(dni)
         def success = false
         def err = ""
+        log.info("door " + door)
         if (!isChild) {
             try {
-                isChild = addChildDevice("ithinkdancan", "Meross Smart WiFi Garage Door Opener", dni, ["label": door.devName])
+                isChild = addChildDevice("ithinkdancan", "Meross Smart WiFi Garage Door Opener", dni, ["label": door])
                 isChild.updateSetting("deviceIp", merossIP)
                 isChild.updateSetting("channel", Integer.parseInt(door_index))
                 isChild.updateSetting("uuid", selectedDevice)
@@ -173,7 +174,7 @@ def addGarageDoorStep4() {
             }
         }
         if(success) {
-            message += "New door added successfully (" + door.devName + ").<br/>"
+            message += "New door added successfully (" + door + ").<br/>"
         } else {
             message += "Unable to add door: " + err + "<br/>";
         }
