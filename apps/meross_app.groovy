@@ -99,7 +99,7 @@ def addGarageDoorStep2() {
 }
 
 def addGarageDoorStep3() {
-  def doors = [:] 
+  def doors = [:]
   state.data.each { device ->
     if(device.uuid == selectedDevice) {
       if(device.deviceType == "msg200") {
@@ -139,7 +139,7 @@ def addGarageDoorStep3() {
 def addGarageDoorStep4() {
     
     def doors = [:]
-    state.data.each { device ->    
+    state.data.each { device ->
         if(device.uuid == selectedDevice) {
             if (device.deviceType == "msg100") {
               doors['1'] = device
