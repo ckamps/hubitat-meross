@@ -141,8 +141,13 @@ def addGarageDoorStep4() {
     def doors = [:]
     state.data.each { device ->
         if(device.uuid == selectedDevice) {
-            for(i=1; i<device.channels.size(); i++){
-                doors["${i}"] = device.channels[i]
+            if (device.deviceType == "msg100") {
+              doors['1'] = device
+            }
+            else {
+                for(i=1; i<device.channels.size(); i++){
+                    doors["${i}"] = device.channels[i]
+                }
             }
         }
     }
