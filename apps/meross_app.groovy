@@ -145,8 +145,9 @@ def addGarageDoorStep4() {
               doors['1'] = device
             }
             else {
-                for(i=1; i<device.channels.size(); i++){
-                doors["${i}"] = device.channels[i]
+							for(i=1; i<device.channels.size(); i++){
+							  doors["${i}"] = device.channels[i]
+							}
             }
         }
     }
